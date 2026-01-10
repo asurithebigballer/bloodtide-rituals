@@ -1,71 +1,183 @@
 import { Download } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 const DownloadSection = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+
+  const rotateOuter = useTransform(scrollYProgress, [0, 1], [0, 180]);
+  const rotateInner = useTransform(scrollYProgress, [0, 1], [0, -180]);
+
   return (
-    <section className="relative py-32 px-4 bg-obsidian overflow-hidden">
-      {/* Background pattern */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_hsl(0_100%_20%_/_0.15)_0%,_transparent_50%)]" />
-        {/* Animated blood drips effect */}
-        <div className="absolute top-0 left-1/4 w-px h-32 bg-gradient-to-b from-blood to-transparent opacity-30" />
-        <div className="absolute top-0 left-1/3 w-px h-48 bg-gradient-to-b from-blood to-transparent opacity-20" />
-        <div className="absolute top-0 right-1/4 w-px h-40 bg-gradient-to-b from-blood to-transparent opacity-25" />
-        <div className="absolute top-0 right-1/3 w-px h-24 bg-gradient-to-b from-blood to-transparent opacity-30" />
+    <section ref={ref} className="relative py-40 px-4 bg-obsidian overflow-hidden">
+      {/* Animated ritual circles with parallax */}
+      <motion.div 
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20"
+      >
+        <motion.div 
+          className="absolute inset-0 border-2 border-blood rounded-full"
+          style={{ rotate: rotateOuter }}
+        />
+        <motion.div 
+          className="absolute inset-12 border border-blood rounded-full"
+          style={{ rotate: rotateInner }}
+        />
+        <motion.div 
+          className="absolute inset-24 border border-blood/50 rounded-full"
+          style={{ rotate: rotateOuter }}
+        />
+        {/* Rune symbols on the circles */}
+        {['ᚱ', 'ᛒ', 'ᚦ', 'ᛏ', 'ᛉ', 'ᛟ', 'ᚢ', 'ᚨ'].map((rune, i) => (
+          <motion.span
+            key={i}
+            className="absolute text-blood text-2xl font-bold"
+            style={{
+              top: '50%',
+              left: '50%',
+              transform: `rotate(${i * 45}deg) translateY(-280px)`,
+            }}
+            animate={{ opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, delay: i * 0.3 }}
+          >
+            {rune}
+          </motion.span>
+        ))}
+      </motion.div>
+
+      {/* Blood drips from top */}
+      <div className="absolute top-0 left-0 right-0 overflow-hidden">
+        {[...Array(12)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute top-0 w-0.5 bg-gradient-to-b from-blood via-blood to-transparent"
+            style={{ left: `${5 + i * 8}%` }}
+            animate={{ 
+              height: [0, 100 + Math.random() * 60, 0],
+              opacity: [0, 0.6, 0]
+            }}
+            transition={{ 
+              duration: 4 + Math.random() * 2, 
+              repeat: Infinity, 
+              delay: Math.random() * 4,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
       </div>
 
       <div className="max-w-3xl mx-auto text-center relative z-10">
-        {/* Ritual circle decoration */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] opacity-10">
-          <div className="absolute inset-0 border-2 border-blood rounded-full animate-spin" style={{ animationDuration: '60s' }} />
-          <div className="absolute inset-8 border border-blood rounded-full animate-spin" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
-          <div className="absolute inset-16 border border-blood/50 rounded-full animate-spin" style={{ animationDuration: '30s' }} />
-        </div>
-
         {/* Section header */}
-        <h2 className="font-display text-4xl md:text-5xl text-blood-glow mb-6 tracking-wider relative">
-          ANSWER THE CALL
-        </h2>
+        <motion.h2 
+          className="font-display text-5xl md:text-6xl text-blood-glow mb-6 tracking-wider relative"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.span
+            animate={{ 
+              textShadow: [
+                "0 0 20px hsl(0, 100%, 50%), 0 0 40px hsl(0, 100%, 40%)",
+                "0 0 40px hsl(0, 100%, 50%), 0 0 80px hsl(0, 100%, 40%)",
+                "0 0 20px hsl(0, 100%, 50%), 0 0 40px hsl(0, 100%, 40%)"
+              ]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            ANSWER THE CALL
+          </motion.span>
+        </motion.h2>
         
-        <p className="text-bone/70 font-body text-lg md:text-xl mb-4 max-w-xl mx-auto">
+        <motion.p 
+          className="text-bone/70 font-body text-lg md:text-xl mb-4 max-w-xl mx-auto"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+        >
           The blood tide rises. Will you embrace its power, or be consumed by it?
-        </p>
+        </motion.p>
 
         {/* Requirements notice */}
-        <div className="inline-flex items-center gap-2 bg-iron/50 border border-blood/30 rounded px-4 py-2 mb-10">
+        <motion.div 
+          className="inline-flex items-center gap-2 bg-iron/50 border border-blood/30 rounded px-4 py-2 mb-12"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4 }}
+          whileHover={{ borderColor: "hsl(0, 85%, 45%)" }}
+        >
           <svg className="w-5 h-5 text-blood" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span className="text-bone/80 text-sm font-body">Requires CurseForge to Import</span>
-        </div>
+        </motion.div>
 
         {/* Download button - Ritual Seal */}
-        <div className="relative inline-block">
-          <button className="ritual-seal px-12 py-5 rounded font-display text-xl tracking-wider text-primary-foreground uppercase flex items-center gap-4 mx-auto">
-            <Download className="w-6 h-6" />
+        <motion.div 
+          className="relative inline-block"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+        >
+          <motion.button 
+            className="ritual-seal px-14 py-6 rounded font-display text-xl tracking-wider text-primary-foreground uppercase flex items-center gap-4 mx-auto"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <Download className="w-6 h-6" />
+            </motion.div>
             <span>Begin the Ritual</span>
-          </button>
+          </motion.button>
           
-          {/* Decorative sigil around button */}
-          <div className="absolute -inset-8 pointer-events-none">
-            <svg className="w-full h-full" viewBox="0 0 200 100" fill="none">
-              {/* Top corners */}
-              <path d="M10 20 L10 10 L20 10" stroke="hsl(0, 85%, 35%)" strokeWidth="1" opacity="0.5" />
-              <path d="M190 20 L190 10 L180 10" stroke="hsl(0, 85%, 35%)" strokeWidth="1" opacity="0.5" />
-              {/* Bottom corners */}
-              <path d="M10 80 L10 90 L20 90" stroke="hsl(0, 85%, 35%)" strokeWidth="1" opacity="0.5" />
-              <path d="M190 80 L190 90 L180 90" stroke="hsl(0, 85%, 35%)" strokeWidth="1" opacity="0.5" />
-            </svg>
-          </div>
-        </div>
+          {/* Pulsing outer ring */}
+          <motion.div
+            className="absolute -inset-4 border border-blood/30 rounded-lg pointer-events-none"
+            animate={{ 
+              scale: [1, 1.05, 1],
+              opacity: [0.5, 0.8, 0.5]
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+          <motion.div
+            className="absolute -inset-8 border border-blood/20 rounded-lg pointer-events-none"
+            animate={{ 
+              scale: [1, 1.03, 1],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{ duration: 2.5, repeat: Infinity, delay: 0.5 }}
+          />
+        </motion.div>
 
         {/* Bottom decoration */}
-        <div className="flex items-center justify-center gap-4 mt-16">
-          <span className="text-blood/60 text-2xl rune-pulse">ᛒ</span>
-          <div className="h-px w-16 bg-blood/30" />
-          <span className="text-blood/60 text-3xl rune-pulse" style={{ animationDelay: '0.5s' }}>ᛟ</span>
-          <div className="h-px w-16 bg-blood/30" />
-          <span className="text-blood/60 text-2xl rune-pulse" style={{ animationDelay: '1s' }}>ᛒ</span>
-        </div>
+        <motion.div 
+          className="flex items-center justify-center gap-4 mt-20"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.7 }}
+        >
+          {['ᛒ', 'ᛟ', 'ᛒ'].map((rune, i) => (
+            <motion.span 
+              key={i}
+              className={`text-blood/60 ${i === 1 ? 'text-3xl' : 'text-2xl'}`}
+              animate={{ 
+                opacity: [0.4, 1, 0.4],
+                scale: [1, 1.2, 1]
+              }}
+              transition={{ duration: 3, repeat: Infinity, delay: i * 0.4 }}
+            >{rune}</motion.span>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

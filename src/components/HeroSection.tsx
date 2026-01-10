@@ -1,69 +1,173 @@
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 import heroBg from '@/assets/hero-bg.jpg';
 
 const HeroSection = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"]
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBg})` }}
+    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Parallax background image */}
+      <motion.div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
+        style={{ 
+          backgroundImage: `url(${heroBg})`,
+          y: backgroundY,
+        }}
       />
       
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
+      {/* Animated vignette overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_hsl(0_0%_4%_/_0.4)_50%,_hsl(0_0%_4%_/_0.9)_100%)]" />
       
-      {/* Blood mist effect */}
+      {/* Blood mist effect - enhanced */}
       <div className="blood-mist" />
       
-      {/* Animated fog layers */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute inset-0 bg-gradient-to-r from-blood-dark/20 via-transparent to-blood-dark/20 animate-drift" />
+      {/* Floating particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 rounded-full bg-blood-glow/60"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0, 1, 0],
+              scale: [0.5, 1.5, 0.5],
+            }}
+            transition={{
+              duration: 4 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 4,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
       </div>
       
       {/* Lightning flash overlay */}
-      <div className="absolute inset-0 bg-foreground/5 animate-lightning pointer-events-none" />
+      <motion.div 
+        className="absolute inset-0 bg-blood-glow/10 pointer-events-none"
+        animate={{
+          opacity: [0, 0, 0.3, 0, 0.2, 0, 0, 0, 0, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
       
-      {/* Content */}
-      <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-        {/* Decorative runes above title */}
-        <div className="flex items-center justify-center gap-4 mb-8 opacity-60">
-          <span className="text-blood-glow text-2xl rune-pulse">◆</span>
-          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent" />
-          <span className="text-blood-glow text-3xl rune-pulse" style={{ animationDelay: '0.5s' }}>ᛟ</span>
-          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent" />
-          <span className="text-blood-glow text-2xl rune-pulse" style={{ animationDelay: '1s' }}>◆</span>
+      {/* Content with parallax */}
+      <motion.div 
+        className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+        style={{ y: textY, opacity }}
+      >
+        {/* Animated rune circle behind title */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20 pointer-events-none">
+          <motion.div 
+            className="absolute inset-0 border border-blood rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div 
+            className="absolute inset-12 border border-blood/50 rounded-full"
+            animate={{ rotate: -360 }}
+            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+          />
+          <motion.div 
+            className="absolute inset-24 border border-blood/30 rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          />
         </div>
+
+        {/* Decorative runes above title */}
+        <motion.div 
+          className="flex items-center justify-center gap-4 mb-8"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.2 }}
+        >
+          <motion.span 
+            className="text-blood-glow text-2xl"
+            animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >◆</motion.span>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent" />
+          <motion.span 
+            className="text-blood-glow text-3xl"
+            animate={{ 
+              opacity: [0.5, 1, 0.5],
+              textShadow: [
+                "0 0 10px hsl(0, 100%, 50%)",
+                "0 0 30px hsl(0, 100%, 50%)",
+                "0 0 10px hsl(0, 100%, 50%)"
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+          >ᛟ</motion.span>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent" />
+          <motion.span 
+            className="text-blood-glow text-2xl"
+            animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          >◆</motion.span>
+        </motion.div>
         
-        {/* Main title */}
-        <h1 className="bloodtide-title text-6xl md:text-8xl lg:text-9xl mb-6 tracking-widest animate-pulse-glow">
+        {/* Main title with dramatic entrance */}
+        <motion.h1 
+          className="text-7xl md:text-8xl lg:text-[10rem] mb-6 tracking-[0.2em] font-display font-black"
+          style={{
+            color: 'hsl(0, 100%, 50%)',
+            textShadow: '0 0 20px hsl(0, 100%, 50%), 0 0 60px hsl(0, 100%, 40%), 0 0 100px hsl(0, 100%, 30%), 0 4px 0 hsl(0, 100%, 20%)',
+          }}
+          initial={{ opacity: 0, scale: 0.8, y: 50 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+        >
           BLOODTIDE
-        </h1>
+        </motion.h1>
         
-        {/* Subtitle */}
-        <p className="font-display text-xl md:text-2xl lg:text-3xl text-bone/90 tracking-wide mb-4 font-medium">
+        {/* Subtitle with stagger animation */}
+        <motion.p 
+          className="font-display text-xl md:text-2xl lg:text-3xl text-bone/90 tracking-wide mb-4 font-medium"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.5 }}
+        >
           "The land remembers. The tide demands blood."
-        </p>
+        </motion.p>
         
         {/* Decorative line */}
-        <div className="flex items-center justify-center gap-3 mt-8 mb-12">
+        <motion.div 
+          className="flex items-center justify-center gap-3 mt-8"
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
           <div className="h-px w-32 bg-gradient-to-r from-transparent to-blood" />
-          <span className="text-blood text-xl">⚔</span>
+          <motion.span 
+            className="text-blood text-xl"
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >⚔</motion.span>
           <div className="h-px w-32 bg-gradient-to-l from-transparent to-blood" />
-        </div>
-        
-        {/* Scroll indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-          <span className="text-bone/60 text-sm font-body tracking-wider uppercase">Descend</span>
-          <svg 
-            className="w-6 h-6 text-blood-glow" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
+      
+      {/* Bottom gradient fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 };
