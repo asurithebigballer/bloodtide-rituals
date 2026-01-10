@@ -1,6 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
-import heroBg from '@/assets/hero-bg.jpg';
 
 const HeroSection = () => {
   const ref = useRef<HTMLDivElement>(null);
@@ -9,44 +8,88 @@ const HeroSection = () => {
     offset: ["start start", "end start"]
   });
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Parallax background image */}
-      <motion.div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
-        style={{ 
-          backgroundImage: `url(${heroBg})`,
-          y: backgroundY,
-        }}
-      />
+    <section ref={ref} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background">
+      {/* Animated blood vortex background */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {/* Outer spinning rings */}
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full border opacity-20"
+            style={{
+              width: `${300 + i * 200}px`,
+              height: `${300 + i * 200}px`,
+              borderColor: `hsl(0 85% ${30 - i * 3}%)`,
+              borderWidth: `${2 - i * 0.3}px`,
+            }}
+            animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
+            transition={{ duration: 40 + i * 10, repeat: Infinity, ease: "linear" }}
+          />
+        ))}
+        
+        {/* Central glowing orb */}
+        <motion.div
+          className="absolute w-32 h-32 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, hsl(0 100% 40% / 0.4) 0%, transparent 70%)',
+            boxShadow: '0 0 100px hsl(0 100% 40% / 0.3), 0 0 200px hsl(0 100% 30% / 0.2)',
+          }}
+          animate={{ 
+            scale: [1, 1.3, 1],
+            opacity: [0.6, 0.9, 0.6],
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        />
+        
+        {/* Pulsing rune marks */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={`rune-${i}`}
+            className="absolute text-4xl font-display"
+            style={{
+              color: 'hsl(0 85% 35% / 0.3)',
+              transform: `rotate(${i * 45}deg) translateY(-180px)`,
+            }}
+            animate={{ 
+              opacity: [0.2, 0.5, 0.2],
+              textShadow: [
+                '0 0 10px hsl(0 100% 40% / 0.3)',
+                '0 0 30px hsl(0 100% 40% / 0.5)',
+                '0 0 10px hsl(0 100% 40% / 0.3)',
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity, delay: i * 0.4 }}
+          >
+            ᛟ
+          </motion.div>
+        ))}
+      </div>
       
-      {/* Animated vignette overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_hsl(0_0%_4%_/_0.4)_50%,_hsl(0_0%_4%_/_0.9)_100%)]" />
-      
-      {/* Blood mist effect - enhanced */}
+      {/* Blood mist effect */}
       <div className="blood-mist" />
       
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 rounded-full bg-blood-glow/60"
+            className="absolute w-1 h-1 rounded-full"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
+              backgroundColor: 'hsl(0 85% 40% / 0.5)',
             }}
             animate={{
-              y: [0, -100, 0],
-              opacity: [0, 1, 0],
-              scale: [0.5, 1.5, 0.5],
+              y: [0, -80, 0],
+              opacity: [0, 0.8, 0],
+              scale: [0.5, 1.2, 0.5],
             }}
             transition={{
-              duration: 4 + Math.random() * 4,
+              duration: 5 + Math.random() * 3,
               repeat: Infinity,
               delay: Math.random() * 4,
               ease: "easeInOut",
@@ -57,9 +100,10 @@ const HeroSection = () => {
       
       {/* Lightning flash overlay */}
       <motion.div 
-        className="absolute inset-0 bg-blood-glow/10 pointer-events-none"
+        className="absolute inset-0 pointer-events-none"
+        style={{ backgroundColor: 'hsl(0 85% 40% / 0.05)' }}
         animate={{
-          opacity: [0, 0, 0.3, 0, 0.2, 0, 0, 0, 0, 0],
+          opacity: [0, 0, 0.4, 0, 0.2, 0, 0, 0, 0, 0],
         }}
         transition={{
           duration: 8,
@@ -70,28 +114,9 @@ const HeroSection = () => {
       
       {/* Content with parallax */}
       <motion.div 
-        className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+        className="relative z-10 flex flex-col items-center justify-center text-center px-4 w-full max-w-5xl mx-auto"
         style={{ y: textY, opacity }}
       >
-        {/* Animated rune circle behind title */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-20 pointer-events-none">
-          <motion.div 
-            className="absolute inset-0 border border-blood rounded-full"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div 
-            className="absolute inset-12 border border-blood/50 rounded-full"
-            animate={{ rotate: -360 }}
-            transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-          />
-          <motion.div 
-            className="absolute inset-24 border border-blood/30 rounded-full"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          />
-        </div>
-
         {/* Decorative runes above title */}
         <motion.div 
           className="flex items-center justify-center gap-4 mb-8"
@@ -100,37 +125,40 @@ const HeroSection = () => {
           transition={{ duration: 1, delay: 0.2 }}
         >
           <motion.span 
-            className="text-blood-glow text-2xl"
-            animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
+            className="text-2xl"
+            style={{ color: 'hsl(0 85% 40%)' }}
+            animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.15, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >◆</motion.span>
-          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent" />
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent opacity-50" />
           <motion.span 
-            className="text-blood-glow text-3xl"
+            className="text-3xl"
+            style={{ color: 'hsl(0 85% 40%)' }}
             animate={{ 
-              opacity: [0.5, 1, 0.5],
+              opacity: [0.4, 0.8, 0.4],
               textShadow: [
-                "0 0 10px hsl(0, 100%, 50%)",
-                "0 0 30px hsl(0, 100%, 50%)",
-                "0 0 10px hsl(0, 100%, 50%)"
+                "0 0 8px hsl(0 85% 40% / 0.5)",
+                "0 0 20px hsl(0 85% 40% / 0.7)",
+                "0 0 8px hsl(0 85% 40% / 0.5)"
               ]
             }}
             transition={{ duration: 3, repeat: Infinity }}
           >ᛟ</motion.span>
-          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent" />
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-blood to-transparent opacity-50" />
           <motion.span 
-            className="text-blood-glow text-2xl"
-            animate={{ opacity: [0.4, 1, 0.4], scale: [1, 1.2, 1] }}
+            className="text-2xl"
+            style={{ color: 'hsl(0 85% 40%)' }}
+            animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.15, 1] }}
             transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
           >◆</motion.span>
         </motion.div>
         
-        {/* Main title with dramatic entrance */}
+        {/* Main title - centered with subdued glow */}
         <motion.h1 
-          className="text-7xl md:text-8xl lg:text-[10rem] mb-6 tracking-[0.2em] font-display font-black"
+          className="text-7xl md:text-8xl lg:text-[10rem] mb-6 tracking-[0.2em] font-display font-black w-full text-center"
           style={{
-            color: 'hsl(0, 100%, 50%)',
-            textShadow: '0 0 20px hsl(0, 100%, 50%), 0 0 60px hsl(0, 100%, 40%), 0 0 100px hsl(0, 100%, 30%), 0 4px 0 hsl(0, 100%, 20%)',
+            color: 'hsl(0 85% 35%)',
+            textShadow: '0 0 15px hsl(0 85% 35% / 0.6), 0 0 40px hsl(0 85% 30% / 0.4), 0 4px 0 hsl(0 85% 20%)',
           }}
           initial={{ opacity: 0, scale: 0.8, y: 50 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -139,9 +167,10 @@ const HeroSection = () => {
           BLOODTIDE
         </motion.h1>
         
-        {/* Subtitle with stagger animation */}
+        {/* Subtitle */}
         <motion.p 
-          className="font-display text-xl md:text-2xl lg:text-3xl text-bone/90 tracking-wide mb-4 font-medium"
+          className="font-display text-xl md:text-2xl lg:text-3xl tracking-wide mb-4 font-medium"
+          style={{ color: 'hsl(35 25% 65% / 0.85)' }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -156,13 +185,14 @@ const HeroSection = () => {
           animate={{ opacity: 1, scaleX: 1 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <div className="h-px w-32 bg-gradient-to-r from-transparent to-blood" />
+          <div className="h-px w-32 bg-gradient-to-r from-transparent to-blood opacity-60" />
           <motion.span 
-            className="text-blood text-xl"
+            className="text-xl"
+            style={{ color: 'hsl(0 85% 35%)' }}
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ duration: 4, repeat: Infinity }}
           >⚔</motion.span>
-          <div className="h-px w-32 bg-gradient-to-l from-transparent to-blood" />
+          <div className="h-px w-32 bg-gradient-to-l from-transparent to-blood opacity-60" />
         </motion.div>
       </motion.div>
       
